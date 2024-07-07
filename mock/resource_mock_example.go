@@ -1,7 +1,10 @@
 package mock
 
 import (
+	"fmt"
 	"log"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,13 +36,29 @@ func resourceExample() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"fn_id": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"not_computed_optional": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"not_computed_required": {
+			"handler": {
 				Type:     schema.TypeString,
-				Required: true,
+				Optional: true,
+			},
+			"filename": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"function_name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"runtime": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 			// This attribute is 'required' meaning the consumer of this provider
 			// will need to define the values expected when writing their terraform
@@ -105,7 +124,7 @@ func resourceExample() *schema.Resource {
 			*/
 			"baz": {
 				Type:     schema.TypeList,
-				Required: true,
+				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"qux": {
@@ -153,6 +172,48 @@ func resourceExample() *schema.Resource {
 	}
 }
 
+func fleek_edge_create(d *schema.ResourceData, m any) error {
+	fmt.Print("\n\n--- CREATE FLEEK EDGE FN ---\n\n")
+	log.Print("\n\n--- CREATE FLEEK EDGE FN ---\n\n")
+	log.Printf("\n\n>>> schema.ResourceData: %+v\n\n", d)
+	log.Printf("\n\n>>> meta data: %+v\n\n", m)
+
+	// return nil
+
+	// fleek functions create --name my-first-function
+	// fleek functions deploy \
+    // --name my-first-function \
+    // --path ~/some/path/my-first-function.js
+
+	fname := d.Get("function_name").(string);
+	path :=  d.Get("filename").(string);
+
+	cmd1 := exec.Command("fleek", "functions", "create", "--name", fname);
+	stdout1, stderr1 := cmd1.Output()
+	log.Printf("\n\n>>> stdout %+v\n\n", stdout1)
+	log.Printf("\n\n>>> stderr: %+v\n\n", stderr1)
+
+	cmd2 := exec.Command("fleek", "functions", "deploy", "--name", fname, "--path", path);
+	stdout2, stderr2 := cmd2.Output()
+	log.Printf("\n\n>>> stdout %+v\n\n", stdout2)
+	log.Printf("\n\n>>> stderr: %+v\n\n", stderr2)
+	
+	// var outs string = string(stdout1[:]);
+	// outs += "\n______\n";
+	// outs += string(stdout2[:]);
+	// outs += "\n______\n";
+	
+	lines := strings.Split(string(stdout2[:]), "\n");
+	outs := lines[len(lines)-2];
+
+
+	// var fn_id string = strings.Join(lines, "\n__ ");
+	var fn_id string = outs;
+	d.Set("fn_id", fn_id);
+
+	return nil;
+}
+
 // The CREATE operation typically will make API calls to create resources. It
 // won't set anything in the terraform state, with the exception of setting a
 // unique ID that will be used by all the other functions to access the
@@ -198,7 +259,7 @@ func resourceCreate(d *schema.ResourceData, m any) error {
 	// operation (which itself would have caused an error earlier and failed the
 	// CREATE any way). This way we're ensuring the local state is up-to-date and
 	// doesn't need a refresh.
-	return resourceRead(d, m)
+	return fleek_edge_create(d, m)
 }
 
 // The READ operation must handle three things: calling out to the API to get
@@ -300,7 +361,9 @@ func resourceUpdate(d *schema.ResourceData, m any) error {
 
 	// Again, we do a READ operation to be sure we get the latest state stored locally.
 	//
-	return resourceRead(d, m)
+	// return resourceRead(d, m)
+	return fleek_edge_create(d, m);
+
 }
 
 func resourceDelete(d *schema.ResourceData, m any) error {

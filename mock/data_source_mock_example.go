@@ -27,6 +27,10 @@ func dataSourceExample() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"runtime": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -45,6 +49,8 @@ func dataSourceExampleRead(d *schema.ResourceData, m any) error {
 			{"id": 2, "version": "b"},
 			{"id": 3, "version": "c"},
 		]`
+
+	return nil;
 
 	// In order for us to store the returned data into terraform we need to
 	// marshal the data into a format that matches what the schema expects.
