@@ -172,28 +172,28 @@ func resourceExample() *schema.Resource {
 	}
 }
 
-func fleek_edge_create(d *schema.ResourceData, m any) error {
-	fmt.Print("\n\n--- CREATE FLEEK EDGE FN ---\n\n")
-	log.Print("\n\n--- CREATE FLEEK EDGE FN ---\n\n")
+func theta_edge_create(d *schema.ResourceData, m any) error {
+	fmt.Print("\n\n--- CREATE THETA EDGE FN ---\n\n")
+	log.Print("\n\n--- CREATE THETA EDGE FN ---\n\n")
 	log.Printf("\n\n>>> schema.ResourceData: %+v\n\n", d)
 	log.Printf("\n\n>>> meta data: %+v\n\n", m)
 
 	// return nil
 
-	// fleek functions create --name my-first-function
-	// fleek functions deploy \
+	// theta functions create --name my-first-function
+	// theta functions deploy \
     // --name my-first-function \
     // --path ~/some/path/my-first-function.js
 
 	fname := d.Get("function_name").(string);
 	path :=  d.Get("filename").(string);
 
-	cmd1 := exec.Command("fleek", "functions", "create", "--name", fname);
+	cmd1 := exec.Command("theta", "functions", "create", "--name", fname);
 	stdout1, stderr1 := cmd1.Output()
 	log.Printf("\n\n>>> stdout %+v\n\n", stdout1)
 	log.Printf("\n\n>>> stderr: %+v\n\n", stderr1)
 
-	cmd2 := exec.Command("fleek", "functions", "deploy", "--name", fname, "--path", path);
+	cmd2 := exec.Command("theta", "functions", "deploy", "--name", fname, "--path", path);
 	stdout2, stderr2 := cmd2.Output()
 	log.Printf("\n\n>>> stdout %+v\n\n", stdout2)
 	log.Printf("\n\n>>> stderr: %+v\n\n", stderr2)
@@ -259,7 +259,7 @@ func resourceCreate(d *schema.ResourceData, m any) error {
 	// operation (which itself would have caused an error earlier and failed the
 	// CREATE any way). This way we're ensuring the local state is up-to-date and
 	// doesn't need a refresh.
-	return fleek_edge_create(d, m)
+	return theta_edge_create(d, m)
 }
 
 // The READ operation must handle three things: calling out to the API to get
@@ -362,7 +362,7 @@ func resourceUpdate(d *schema.ResourceData, m any) error {
 	// Again, we do a READ operation to be sure we get the latest state stored locally.
 	//
 	// return resourceRead(d, m)
-	return fleek_edge_create(d, m);
+	return theta_edge_create(d, m);
 
 }
 

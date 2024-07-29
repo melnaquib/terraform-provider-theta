@@ -3,6 +3,6 @@
 // curl localhost:4220/services/1/blake3/$(./target/debug/lightning-node dev store services/js-poc/examples/example.js | awk '{print $1}')
 
 export const main = () => {
-    return 'Hello Terraform from Fleek Network!';
+    return 'Hello Terraform from Theta Network!';
   };
   

@@ -14,9 +14,9 @@ provider "mock" {
   # if the environment variable wasn't set.
 }
  
-resource "mock_fleek_edge_function" "terraform_lambda_func20" {
-filename                       = "fleekfn/fleekfn.js"
-function_name                  = "fleekfn33"
+resource "mock_theta_edge_function" "terraform_lambda_func20" {
+filename                       = "thetafn/thetafn.js"
+function_name                  = "thetafn33"
 handler                        = "main"
-runtime                        = "denofleek.2"
+runtime                        = "denotheta.2"
 }

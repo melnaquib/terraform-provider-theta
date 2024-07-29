@@ -33,7 +33,7 @@ func Provider() *schema.Provider {
 			// provider would add to their terraform HCL file.
 			// e.g. resource "mock_example" "my_own_name_for_this" {...}
 			//
-			"mock_fleek_edge_function": resourceExample(),
+			"mock_theta_edge_function": resourceExample(),
 		},
 		// DataSource is a subset of Resource.
 		DataSourcesMap: map[string]*schema.Resource{
@@ -47,7 +47,7 @@ func Provider() *schema.Provider {
 			// provider would add to their terraform HCL file.
 			// e.g. data_source "mock_example" "my_own_name_for_this" {...}
 			//
-			"mock_fleek_edge_function": dataSourceExample(),
+			"mock_theta_edge_function": dataSourceExample(),
 		},
 
 		// To configure the provider (i.e. create an API client)

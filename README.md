@@ -1,1 +1,1 @@
-# terraform-provider-fleek
+# terraform-provider-theta
