@@ -1,4 +1,4 @@
-module github.com/integralist/terraform-provider-mock
+module github.com/melnaquib/terraform-provider-theta
 
 go 1.19
 

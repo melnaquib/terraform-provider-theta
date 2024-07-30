@@ -1,2 +1,4 @@
-terraform-provider-mock
+terraform-provider-theta
 .history
+*.backup
+tmp

@@ -13,7 +13,7 @@ validate-docs: install-tools
 	tfplugindocs validate
 
 build:
-	go build -o terraform-provider-mock
+	go build -o terraform-provider-theta
 
 # bump go.mod dependencies
 bump:
