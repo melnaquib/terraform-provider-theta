@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
-	"strings"
 	"time"
+
+	"reflect"
 
 	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -58,6 +59,38 @@ func resourceSubnet() *schema.Resource {
 			},
 			"runtime": {
 				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"id": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"name": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"rpc": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tfuel_token_bank_addr": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"tfuel_tnt20_bank_addr": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"initial_fee": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"cross_chain_transfer_fee_in_tfuel": {
+				Type:     schema.TypeInt,
+				Optional: true,
+			},
+			"key": {
+				Type:     schema.TypeInt,
 				Optional: true,
 			},
 			// This attribute is 'required' meaning the consumer of this provider
@@ -172,9 +205,24 @@ func resourceSubnet() *schema.Resource {
 	}
 }
 
-func theta_subnet_create(d *schema.ResourceData, m any) error {
-	fmt.Print("\n\n--- CREATE THETA EDGE FN ---\n\n")
-	log.Print("\n\n--- CREATE THETA EDGE FN ---\n\n")
+func exec_cmd(acwd string, acmd []string) ([]byte, error) {
+	fun := reflect.ValueOf(exec.Command)
+	var args []reflect.Value
+    for _, x := range acmd {
+        args = append(args, reflect.ValueOf(x))
+    }
+    result := fun.Call(args)
+	cmd_ := result[0].Interface().(*exec.Cmd)
+	cmd_.Dir = acwd
+	stdout_, stderr_ := cmd_.Output()
+	log.Printf("\n\n>>> stdout %+v\n\n", stdout_)
+	log.Printf("\n\n>>> stderr: %+v\n\n", stderr_)
+
+	return stdout_, stderr_
+}
+
+func subnet_create(d *schema.ResourceData, m any) error {
+	fmt.Print("\n\n--- CREATE THETA SUBNET ---\n\n")
 	log.Printf("\n\n>>> schema.ResourceData: %+v\n\n", d)
 	log.Printf("\n\n>>> meta data: %+v\n\n", m)
 
@@ -185,31 +233,80 @@ func theta_subnet_create(d *schema.ResourceData, m any) error {
     // --name my-first-function \
     // --path ~/some/path/my-first-function.js
 
-	fname := d.Get("function_name").(string);
-	path :=  d.Get("filename").(string);
-
-	cmd1 := exec.Command("theta", "functions", "create", "--name", fname);
-	stdout1, stderr1 := cmd1.Output()
-	log.Printf("\n\n>>> stdout %+v\n\n", stdout1)
-	log.Printf("\n\n>>> stderr: %+v\n\n", stderr1)
-
-	cmd2 := exec.Command("theta", "functions", "deploy", "--name", fname, "--path", path);
-	stdout2, stderr2 := cmd2.Output()
-	log.Printf("\n\n>>> stdout %+v\n\n", stdout2)
-	log.Printf("\n\n>>> stderr: %+v\n\n", stderr2)
+	const METACHAIN_GUIDE_ROOT = "~/metachain_playground/theta-metachain-guide"
+	const SDK_JS_DIR = METACHAIN_GUIDE_ROOT + "sdk/js"
+	const WS_DIR = "~/metachain_playground/privatenet/workspace"
 	
+	// id := d.Get("id").(string);
+	// name := d.Get("name").(string);
+	// rpc := d.Get("rpc").(string);
+	// tfuel_token_bank_addr := d.Get("tfuel_token_bank_addr").(string);
+	// tfuel_tnt20_bank_addr := d.Get("tfuel_tnt20_bank_addr").(string);
+	// initial_fee := d.Get("initial_fee").(int);
+	key := d.Get("key").(string);
+
+
+	pw := "qwertyuiop"
+
+	validator := "0x2E833968E5bB786Ae419c4d13189fB081Cc43bab"
+
+	var cmd_ []string
+	// var stdout_ []byte
+	// var stderr_ error -
+	
+	// 2. Deploy the Governance Token for the Subchain
+	//cd $METACHAIN_GUIDE_ROOT cd sdk/js
+	// node deployGovToken.js privatenet "Subchain 360777 Gov" GOV360777 0x2E833968E5bB786Ae419c4d13189fB081Cc43bab 0x2E833968E5bB786Ae419c4d13189fB081Cc43bab ~/.thetacli/keys/encrypted/2E833968E5bB786Ae419c4d13189fB081Cc43bab qwertyuiop
+
+	cmd_ = []string {"node", "deployGovToken.js", "privatenet", "Subchain 360777 Gov", "GOV360777", validator, validator, key, pw}
+	stdout_, stderr_ := exec_cmd(SDK_JS_DIR, cmd_)
+
+
+	// 3. Register a New Subchain
+	// cd $METACHAIN_GUIDE_ROOT cd sdk/js
+	// node mintMockWrappedTheta.js privatenet 0x2E833968E5bB786Ae419c4d13189fB081Cc43bab 50000000000000000000000 ~/.thetacli/keys/encrypted/2E833968E5bB786Ae419c4d13189fB081Cc43bab qwertyuiop
+
+	balance := "50000000000000000000000"
+
+	cmd_ = []string {"node", "mintMockWrappedTheta.js", "privatenet", "GOV360777", validator, balance, key, pw}
+	stdout_, stderr_ = exec_cmd(SDK_JS_DIR, cmd_)
+
+	balance2 := "100000000000000000000000"
+
+	// 4. Stake to a New Validator
+	// cd $METACHAIN_GUIDE_ROOT cd sdk/js
+	// node depositStake.js privatenet 100000000000000000000000 0x2E833968E5bB786Ae419c4d13189fB081Cc43bab ~/.thetacli/keys/encrypted/2E833968E5bB786Ae419c4d13189fB081Cc43bab qwertyuiop
+
+	cmd_ = []string {"node", "depositStake.js", "privatenet", balance2, validator, key, pw}
+	stdout_, stderr_ = exec_cmd(SDK_JS_DIR, cmd_)
+
+	// 5. Run the Subchain validator and the ETH RPC Adapter
+	// cd ~/metachain_playground/privatenet/workspace
+	// theta-eth-rpc-adaptor start --config=../subchain/ethrpc
+	// cd ~/metachain_playground/privatenet/workspace
+	// thetasubchain start --config=../subchain/validator --password=qwertyuiop
+
+	cmd_ = []string {"theta-eth-rpc-adaptor", "start", "--config="+"../subchain/ethrpc"}
+	stdout_, stderr_ = exec_cmd(WS_DIR, cmd_)
+
+	cmd_ = []string {"thetasubchain", "start", "--config="+"../subchain/validator", "--password="+pw}
+	stdout_, stderr_ = exec_cmd(WS_DIR, cmd_)
+
+	log.Printf("\n\n>>> stdout %+v\n\n", stdout_)
+	log.Printf("\n\n>>> stderr: %+v\n\n", stderr_)
+
 	// var outs string = string(stdout1[:]);
 	// outs += "\n______\n";
 	// outs += string(stdout2[:]);
 	// outs += "\n______\n";
 	
-	lines := strings.Split(string(stdout2[:]), "\n");
-	outs := lines[len(lines)-2];
+	// lines := strings.Split(string(stdout2[:]), "\n");
+	// outs := lines[len(lines)-2];
 
 
-	// var fn_id string = strings.Join(lines, "\n__ ");
-	var fn_id string = outs;
-	d.Set("fn_id", fn_id);
+	// // var fn_id string = strings.Join(lines, "\n__ ");
+	// var fn_id string = outs;
+	// d.Set("fn_id", fn_id);
 
 	return nil;
 }
@@ -259,7 +356,7 @@ func resourceSubnetCreate(d *schema.ResourceData, m any) error {
 	// operation (which itself would have caused an error earlier and failed the
 	// CREATE any way). This way we're ensuring the local state is up-to-date and
 	// doesn't need a refresh.
-	return theta_edge_create(d, m)
+	return subnet_create(d, m)
 }
 
 // The READ operation must handle three things: calling out to the API to get

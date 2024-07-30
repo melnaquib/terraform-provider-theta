@@ -59,43 +59,43 @@ resource "theta_subnet" "subnet_2" {
 
 }
 
-# resource "theta_evm_contract" "test_token" {
-#   network = "subnet_1"
-#   artifact = file("./internal/provider/testdata/Token.json")
-#   signer   = evm_random_pk.deployer.pk
-#   constructor_args = [
-#     "Test1",
-#     "TST",
-#     1000000000 * pow(10, 18),
-#     18,
-#   ]
-# }
+resource "theta_evm_contract" "test_token" {
+  network = "subnet_1"
+  artifact = file("./internal/provider/testdata/Token.json")
+  signer   = evm_random_pk.deployer.pk
+  constructor_args = [
+    "Test1",
+    "TST",
+    1000000000 * pow(10, 18),
+    18,
+  ]
+}
 
-# resource "theta_edge_vod" "res_store_1" {
-#   file                       = "proj/video1.mp4"
-#   "playback_policy"= "public",
-#   "nft_collection"= "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793",
-# }
+resource "theta_edge_vod" "res_store_1" {
+  file                       = "proj/video1.mp4"
+  "playback_policy"= "public",
+  "nft_collection"= "0x5d0004fe2e0ec6d002678c7fa01026cabde9e793",
+}
 
 
-# resource "theta_edge_store" "res_store_1" {
-#   file                       = "proj/file1.data"
-# }
+resource "theta_edge_store" "res_store_1" {
+  file                       = "proj/file1.data"
+}
 
-# resource "theta_edge_function" "terraform_lambda_func20" {
-#   filename                       = "thetafn/thetafn.js"
-#   function_name                  = "thetafn33"
-#   handler                        = "main"
-#   runtime                        = "denotheta.2"
-# }
+resource "theta_edge_function" "terraform_lambda_func20" {
+  filename                       = "thetafn/thetafn.js"
+  function_name                  = "thetafn33"
+  handler                        = "main"
+  runtime                        = "denotheta.2"
+}
 
-# resource "theta_edge_ai" "ai_1" {
-#   name    = "example-${random_pet.this.id}"
-#   runtime = "cloudfront-js-1.0"
-#   vm = ""
-#   model = ""
-#   port = ""
-#   replicas = ""
-#   code    = file("${path.module}/example.py")
-# }
+resource "theta_edge_ai" "ai_1" {
+  name    = "example-${random_pet.this.id}"
+  runtime = "cloudfront-js-1.0"
+  vm = ""
+  model = ""
+  port = ""
+  replicas = ""
+  code    = file("${path.module}/example.py")
+}
 

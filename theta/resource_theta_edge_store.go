@@ -192,7 +192,7 @@ func theta_edge_store_create(d *schema.ResourceData, m any) error {
 	log.Printf("\n\n>>> stdout %+v\n\n", stdout1)
 	log.Printf("\n\n>>> stderr: %+v\n\n", stderr1)
 
-	cmd2 := exec.Command("theta", "functions", "deploy", "--name", fname, "--path", path);
+	cmd2 := exec.Command("theta", "functions", "deploy", "--name", fpath, "--path", fpath);
 	stdout2, stderr2 := cmd2.Output()
 	log.Printf("\n\n>>> stdout %+v\n\n", stdout2)
 	log.Printf("\n\n>>> stderr: %+v\n\n", stderr2)
